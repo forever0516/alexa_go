@@ -1,0 +1,13 @@
+service: alexa-go
+
+frameworkVersion: ">=1.4.0 <2.0.0"
+
+provider:
+  name: aws
+  runtime: nodejs4.3
+
+functions:
+  accessAcount:
+    handler: handler.accessAcount
+    events:
+      - alexaSkill
