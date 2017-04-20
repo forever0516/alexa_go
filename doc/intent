@@ -1,0 +1,70 @@
+## intent
+
+```
+{
+  "intents": [
+    {
+      "slots": [
+        {
+          "name": "time",
+          "type": "AMAZON.DATE"
+        }
+      ],
+      "intent": "GetWeatherByTime"
+    },
+    {
+      "slots": [
+        {
+          "name": "country",
+          "type": "AMAZON.Country"
+        }
+      ],
+      "intent": "GetAirQuality"
+    },
+    {
+      "intent": "SingSong"
+    },
+    {
+      "slots": [
+        {
+          "name": "sportType",
+          "type": "AMAZON.Sport"
+        }
+      ],
+      "intent": "BallGame"
+    },
+    {
+      "slots": [
+        {
+          "name": "UpperLimit",
+          "type": "AMAZON.NUMBER"
+        }
+      ],
+      "intent": "GetLuckyNumbers"
+    }
+  ]
+}
+```
+
+
+
+## Utterances
+
+```
+GetWeatherByTime what's the weather {time}
+GetAirQuality what's the air quality in {country}
+GetAirQuality is the air bad
+GetAirQuality It stinks
+SingSong can you sing a song
+SingSong I want to listen songs
+SingSong give me a song
+SingSong quiet
+BallGame what is the {sportType}
+BallGame search {sportType}
+BallGame google {sportType}
+BallGame what's the {sportType}
+GetLuckyNumbers what are my lucky numbers
+GetLuckyNumbers tell me my lucky numbers
+GetLuckyNumbers what are my lucky numbers lower than {UpperLimit}
+GetLuckyNumbers tell me my lucky numbers lower than {UpperLimit}
+```

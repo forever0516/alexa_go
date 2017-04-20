@@ -8,6 +8,6 @@ provider:
 
 functions:
   accessAcount:
-    handler: handler.accessAcount
+    handler: index.handler
     events:
       - alexaSkill
