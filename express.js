@@ -26,7 +26,6 @@ alexaApp.express({
 app.set("view engine", "ejs");
 
 alexaApp.dictionary = {
-  "countries": ["Taiwan", "USA", "America", "Korean", "Japan", "China"],
   "songs": ["Good Life", "Closer", "Shape of You", "Faded", "Stay", "Yellow"]
 };
 
@@ -35,23 +34,48 @@ alexaApp.launch(function(request, response) {
 });
 
 alexaApp.intent("weather", {
-    "slots": { "COUNTRIES": "LITERAL"},
-    "utterances": ["{what is|how is} the weather in {countries|COUNTRIES}"]
+    "slots": { 
+      "countries": "AMAZON.Country"
+    },
+    "utterances": ["{what is|how is} the weather in {-|countries}"]
   },
   function(request, response) {
-    console.log('request content' + request);
+    console.log('request content' + JSON.stringify(request) );
     response.say("It's sunny");
   }
 );
 
 alexaApp.intent("playMusic", {
-    "slots": { "SONGS": "LITERAL"},
+    "slots": { 
+      "SONGS": "LITERAL"
+    },
     "utterances": ["play music {songs|SONGS} "]
   },
   function(request, response) {
-      response.say("ok, playing"+request.slot("SONGS")+'now');
+      response.say("ok, playing "+request.slot("SONGS")+' now');
   }
 );
+
+alexaApp.intent("sendMail", {
+    "utterances": ["send me mail", "send mail"] //study用法再合併一句
+  },
+  function(request, response) {
+      if(request.hasSession()){
+        var session = request.getSession()
+        console.log('send mail request content' + JSON.stringify(request) );
+        console.log('session content' + JSON.stringify(session) );
+
+        console.log('accessToken is ' + session.user.accessToken);
+
+        response.say("ok, mail sent ");
+
+      }else{
+        response.say("something error, can't get session");
+      }
+  }
+ );
+// get the session object
+
 
 
 app.listen(PORT);
