@@ -5,7 +5,6 @@ var app = new alexa.app("test");
 // Microsoft Graph JavaScript SDK
 // npm install msgraph-sdk-javascript
 var MicrosoftGraph = require("msgraph-sdk-javascript");
-var async = require("async");
 
 app.dictionary = {
   "songs": ["Good Life", "Closer", "Shape of You", "Faded", "Stay", "Yellow"]
@@ -21,85 +20,73 @@ app.intent("weather", {
     },
     "utterances": ["{what is|how is} the weather in {-|countries}"]
   },
+ function(request, response) {
+    console.log('request content' + JSON.stringify(request) );
+    response.say("It's sunny");
+  }
+);
 
-  // access API
+app.intent("calendar", {
+    "utterances": ["check calendar", "check my calendar"]
+  },
   function(request, response) {
     
-    async.waterfall([
-    function(callback) {
-        var session = request.getSession();
-        callback(null, session);
-    },
-    function(session, callback) {
-        console.log('session: '+JSON.stringify(session));
-        var accessToken = session.details.accessToken;
-        callback(null, accessToken);
-    },
-    function(accessToken, callback) {
+    var session = request.getSession();
+    console.log('session: '+JSON.stringify(session));
+    var accessToken = session.details.accessToken;
+
+    if(accessToken){
         console.log('accessToken: ' + accessToken);
         var client = MicrosoftGraph.Client.init({
               authProvider: (done) => {
                   done(null, accessToken);
               }
         });
-        // arg1 now equals 'three'
-        callback(null, client);
-    },
-    function(client, callback) {
-        console.log('client: ' + client);
+
+        //
+        var Moment = require('moment-timezone');
+        var today = Moment().tz('Asian/Taipei').startOf('hour').add(8, 'hours').format('YYYY-MM-DD');
+        var startDate = today+'T'+'00:00:00.0000000';
+        var endDate = today+'T'+'23:59:59.0000000';
+
+        console.log('type '+ typeof(startDate));
+        var url = '/me/calendar/calendarView?startDateTime='+ startDate.toString() + '&'+'endDateTime='+endDate.toString();
+        //
+
         client
-        .api('/me')
-        .select("displayName")
-        .get()
-        .then((res) => {
-            console.log(JSON.stringify(client));
-            console.log(JSON.stringify(res));
+        .api(url.toString())
+        .header("Prefer", 'outlook.timezone="Asia/Taipei"')
+        .top(3)
+        .get((err, res) => {
+            if (err) {
+                console.log(err)
+                return;
+            }else{
+                console.log(url);
+                var upcomingEventNames = []
+
+                
+                for (var i=0; i<res.value.length; i++) {
+                    upcomingEventNames.push(JSON.stringify( res.value[i]));
+                }
+                
+                var replyMessage = 'you have '+upcomingEventNames.length+' meeting today. . ';
+                
+                for(var i=1; i<=upcomingEventNames.length; i++){
+                    replyMessage += i+'. ' + res.value[i-1].subject + ' at ' + res.value[i-1].start.dateTime.substring(res.value[i-1].start.dateTime.lastIndexOf("T")+1,res.value[i-1].start.dateTime.lastIndexOf("."))+'. . ';
+                }
+                if(upcomingEventNames.length>=3){
+                    replyMessage += 'for more, please check your alexa app';
+                }
+                
+                console.log(JSON.stringify(res));
+                
+                response.say(replyMessage);
+            }
         })
-        .catch(console.error);
-
-        callback(null, 'done');
+    }else{
+        console.log('no token');
     }
-    ], function (err, result) {
-        // result now equals 'done'
-    });
-
-
-
-
-
-
-    //
-    // var session = request.getSession();
-    // console.log('session: '+JSON.stringify(session));
-    // var accessToken = session.get('accessToken');
-
-
-    // if(accessToken){
-    //     console.log('accessToken: ' + accessToken);
-    //     var client = MicrosoftGraph.Client.init({
-    //           authProvider: (done) => {
-    //               done(null, accessToken);
-    //           }
-    //     });
-
-    //     client
-    //     .api('/me')
-    //     .select("displayName")
-    //     .get()
-    //     .then((res) => {
-    //         console.log(JSON.stringify(client));
-    //         console.log(JSON.stringify(res));
-    //     })
-    //     .catch(console.error);
-    // }else{
-    //     console.log('no token');
-    // }
-  
-  },
-  
-  function(request, response) {
-    console.log('request content' + JSON.stringify(request) );
-    response.say("It's sunny");
   }
 );
 

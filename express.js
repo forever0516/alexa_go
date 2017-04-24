@@ -39,9 +39,73 @@ alexaApp.intent("weather", {
     },
     "utterances": ["{what is|how is} the weather in {-|countries}"]
   },
-  function(request, response) {
+ function(request, response) {
     console.log('request content' + JSON.stringify(request) );
     response.say("It's sunny");
+  }
+);
+
+alexaApp.intent("calendar", {
+    "utterances": ["check calendar", "check my calendar"]
+  },
+  function(request, response) {
+    
+    var session = request.getSession();
+    console.log('session: '+JSON.stringify(session));
+    var accessToken = session.details.accessToken;
+
+    if(accessToken){
+        console.log('accessToken: ' + accessToken);
+        var client = MicrosoftGraph.Client.init({
+              authProvider: (done) => {
+                  done(null, accessToken);
+              }
+        });
+
+        //
+        var Moment = require('moment-timezone');
+        var today = Moment().tz('Asian/Taipei').startOf('hour').add(8, 'hours').format('YYYY-MM-DD');
+        var startDate = today+'T'+'00:00:00.0000000';
+        var endDate = today+'T'+'23:59:59.0000000';
+
+        console.log('type '+ typeof(startDate));
+        var url = '/me/calendar/calendarView?startDateTime='+ startDate.toString() + '&'+'endDateTime='+endDate.toString();
+        //
+
+        client
+        .api(url.toString())
+        .header("Prefer", 'outlook.timezone="Asia/Taipei"')
+        .top(3)
+        .get((err, res) => {
+            if (err) {
+                console.log(err)
+                return;
+            }else{
+                console.log(url);
+                var upcomingEventNames = []
+
+                
+                for (var i=0; i<res.value.length; i++) {
+                    upcomingEventNames.push(JSON.stringify( res.value[i]));
+                }
+                
+                var replyMessage = 'you have '+upcomingEventNames.length+' meeting today. . ';
+                
+                for(var i=1; i<=upcomingEventNames.length; i++){
+                    replyMessage += i+'. ' + res.value[i-1].subject + ' at ' + res.value[i-1].start.dateTime.substring(res.value[i-1].start.dateTime.lastIndexOf("T")+1,res.value[i-1].start.dateTime.lastIndexOf("."))+'. . ';
+                }
+                if(upcomingEventNames.length>=3){
+                    replyMessage += 'for more, please check your alexa app';
+                }
+                
+                console.log(JSON.stringify(res));
+                
+                response.say(replyMessage);
+            }
+        })
+    }else{
+        console.log('no token');
+    }
   }
 );
 
@@ -52,29 +116,14 @@ alexaApp.intent("playMusic", {
     "utterances": ["play music {songs|SONGS} "]
   },
   function(request, response) {
+      console.log(JSON.stringify(request));
       response.say("ok, playing "+request.slot("SONGS")+' now');
   }
 );
 
-alexaApp.intent("sendMail", {
-    "utterances": ["send me mail", "send mail"] //study用法再合併一句
-  },
-  function(request, response) {
-      if(request.hasSession()){
-        var session = request.getSession()
-        console.log('send mail request content' + JSON.stringify(request) );
-        console.log('session content' + JSON.stringify(session) );
-
-        console.log('accessToken is ' + session.user.accessToken);
-
-        response.say("ok, mail sent ");
-
-      }else{
-        response.say("something error, can't get session");
-      }
-  }
- );
-// get the session object
+alexaApp.intent("errorIntent", function(request, response) {
+  response.say(someVariableThatDoesntExist);
+});
 
 
 
