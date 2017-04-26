@@ -79,7 +79,7 @@ app.intent("calendar", {
                     replyMessage += 'for more, please check your alexa app';
                 }
                 
-                console.log(JSON.stringify(res));
+                console.log('replyMessage:' + JSON.stringify(replyMessage));
                 
                 response.say(replyMessage);
             }

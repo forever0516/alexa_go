@@ -16,5 +16,11 @@ sls deploy
 ```
 
 #### alexa skill kit
-需手動去alexa portal貼上intent, 因為有使用alexa-app framework,
-執行node express.js會顯示目前的intent, utterances, 貼至alexa portal即可
+
+將intent route 貼到express.js
+
+執行node express.js
+
+前往localhost8080會顯示目前的intent, utterances, 
+
+貼至alexa portal即可
