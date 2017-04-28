@@ -97,10 +97,16 @@ app.intent("playMusic", {
     "utterances": ["play music {songs|SONGS} "]
   },
   function(request, response) {
+      var reprompt = 'playing music.';
+
+      response.say(reprompt).send();
+    
       console.log(JSON.stringify(request));
       response.say("ok, playing "+request.slot("SONGS")+' now');
+      return false;      
   }
 );
+
 
 app.intent("errorIntent", function(request, response) {
   response.say(someVariableThatDoesntExist);
