@@ -34,7 +34,7 @@ alexaApp.launch(function(request, response) {
 });
 
 alexaApp.intent("weather", {
-    "slots": { 
+    "slots": {
       "countries": "AMAZON.Country"
     },
     "utterances": ["{what is|how is} the weather in {-|countries}"]
@@ -49,7 +49,7 @@ alexaApp.intent("calendar", {
     "utterances": ["check calendar", "check my calendar"]
   },
   function(request, response) {
-    
+
     var session = request.getSession();
     console.log('session: '+JSON.stringify(session));
     var accessToken = session.details.accessToken;
@@ -84,22 +84,22 @@ alexaApp.intent("calendar", {
                 console.log(url);
                 var upcomingEventNames = []
 
-                
+
                 for (var i=0; i<res.value.length; i++) {
                     upcomingEventNames.push(JSON.stringify( res.value[i]));
                 }
-                
+
                 var replyMessage = 'you have '+upcomingEventNames.length+' meeting today. . ';
-                
+
                 for(var i=1; i<=upcomingEventNames.length; i++){
                     replyMessage += i+'. ' + res.value[i-1].subject + ' at ' + res.value[i-1].start.dateTime.substring(res.value[i-1].start.dateTime.lastIndexOf("T")+1,res.value[i-1].start.dateTime.lastIndexOf("."))+'. . ';
                 }
                 if(upcomingEventNames.length>=3){
                     replyMessage += 'for more, please check your alexa app';
                 }
-                
+
                 console.log(JSON.stringify(res));
-                
+
                 response.say(replyMessage);
             }
         })
@@ -110,7 +110,7 @@ alexaApp.intent("calendar", {
 );
 
 alexaApp.intent("playMusic", {
-    "slots": { 
+    "slots": {
       "SONGS": "LITERAL"
     },
     "utterances": ["play music {songs|SONGS} "]
@@ -118,6 +118,56 @@ alexaApp.intent("playMusic", {
   function(request, response) {
       console.log(JSON.stringify(request));
       response.say("ok, playing "+request.slot("SONGS")+' now');
+  }
+);
+
+alexaApp.intent("mail", {
+    "utterances": ["send mail", "send me mail"]
+  },
+  function(request, response) {
+
+    var session = request.getSession();
+    console.log('session: '+JSON.stringify(session));
+    var accessToken = session.details.accessToken;
+    if(accessToken){
+        console.log('accessToken: ' + accessToken);
+        var client = MicrosoftGraph.Client.init({
+              authProvider: (done) => {
+                  done(null, accessToken);
+              }
+        });
+        //
+        var url = '/me/sendMail';
+        var replyMessage = 'Sent an email';
+        //
+        var mail = {
+            subject: "MicrosoftGraph JavaScript SDK Samples",
+            toRecipients: [{
+                emailAddress: {
+                    address: "Kai_Yang@wistron.com"
+                }
+            }],
+            body: {
+                content: "<h1>MicrosoftGraph TypeScript Connect Sample</h1><br>this is a test mail",
+                contentType: "html"
+            }
+        }
+      client
+          .api('/me/sendMail')
+          .post(
+              {message: mail},
+              (err, res) => {
+                  if (err){
+                      console.log(err);
+                    }else{
+                      console.log('replyMessage:' + JSON.stringify(replyMessage));
+                      replyMessage += 'Sent an email';
+                      response.say(replyMessage);
+                    }
+              })
+    }else{
+        console.log('no token');
+    }
   }
 );
 
