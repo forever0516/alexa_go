@@ -11,7 +11,7 @@ app.dictionary = {
 };
 
 app.launch(function(request, response) {
-  response.say("App launched!");
+  response.say("welcome to gina go").reprompt("welcome to gina go").shouldEndSession(false);
 });
 
 app.intent("weather", {
