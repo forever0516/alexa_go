@@ -8,11 +8,12 @@ var template = require("./template.js");
 var MicrosoftGraph = require("msgraph-sdk-javascript");
 
 app.dictionary = {
-  "songs": ["Good Life", "Closer", "Shape of You", "Faded", "Stay", "Yellow"]
+  "songs": ["Good Life", "Closer", "Shape of You", "Faded", "Stay", "Yellow"],
+  "topics": ["Business", "Meeting", "Tour"]
 };
 
 app.launch(function(request, response) {
-  response.say("welcome to gina go").reprompt("welcome to gina go").shouldEndSession(false);
+  response.say("welcome to gina mail").reprompt("welcome to gina mail").shouldEndSession(false);
 });
 
 app.intent("weather", {
@@ -117,9 +118,9 @@ app.intent("playMusic", {
 
 app.intent("mail", {
     "slots": {
-
+      "TOPIC": "MailTopic"
     },
-    "utterances": ["send mail", "send me mail"]
+    "utterances": ["send mail {topics|TOPIC}"]
   },
   function(request, response) {
 
@@ -138,7 +139,7 @@ app.intent("mail", {
         var replyMessage = 'Sent an email';
         //
         var mail = {
-            subject: "MicrosoftGraph JavaScript SDK Samples",
+            subject: request.slot("TOPIC"),
             toRecipients: [{
                 emailAddress: {
                     address: "Kai_Yang@wistron.com"
@@ -157,12 +158,13 @@ app.intent("mail", {
                   if (err){
                       console.log(err);
                     }else{
-                       response.say(replyMessage).send();
                       console.log('request content' + JSON.stringify(request) );
                       console.log('res content' + JSON.stringify(res) );
                       console.log('response content' + JSON.stringify(response) );
                     }
               })
+
+    response.say("send an mail Topic: "+ request.slot("TOPIC")+' now');
 
     }else{
         console.log('no token');
