@@ -257,10 +257,39 @@ app.intent("checkMailIntent", {
                       }else{
                           console.log(url);
                           console.log("check mail" + JSON.stringify(res));
+
+                          var upcomingEventNames = {
+                            displayName:'',
+                            unreadItemCount:'',
+                            totalItemCount:''
+                          };
+                          var str = "收件匣";
+                          for (var i=0; i<res.value.length; i++) {
+                              if(res.value[i].displayName == str){
+                                upcomingEventNames.displayName = res.value[i].displayName;
+                                upcomingEventNames.unreadItemCount = res.value[i].unreadItemCount;
+                                upcomingEventNames.totalItemCount = res.value[i].totalItemCount;
+                                console.log(res.value[i].displayName);
+                              }
+                            }
+
+
+                          console.log("mail box: " + JSON.stringify(upcomingEventNames));
+                          console.log("mail box JSON: " + JSON.stringify(upcomingEventNames.displayName));
+                          console.log("mail box: " + typeof(upcomingEventNames));
+                          console.log("mail Name: " + upcomingEventNames.displayName);
+                          console.log("mail unread: " + typeof(upcomingEventNames.unreadItemCount));
+                          console.log("mail total: " + typeof(upcomingEventNames.totalItemCount));
+                          // var replyMessage = 'you have '+ upcomingEventNames.length +' meeting today. . ';
+                          //
+                          // for(var i=1; i<=upcomingEventNames.length; i++){
+                          //     replyMessage += i+'. ' + res.value[i-1].subject + ' at ' + res.value[i-1].start.dateTime.substring(res.value[i-1].start.dateTime.lastIndexOf("T")+1,res.value[i-1].start.dateTime.lastIndexOf("."))+'. . ';
+                          // }
+
                       }
                   })
 
-      response.say("send an mail title: "+ templateSubject +' now').reprompt("please say again").shouldEndSession(false);
+      response.say("check mail: ").reprompt("please say again").shouldEndSession(false);
 
       }else{
           console.log('no token');
