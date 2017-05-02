@@ -225,8 +225,53 @@ alexaApp.intent("mailContentIntent", {
     }
     return false;
   }
+);
 
+// check mail
+alexaApp.intent("checkMailIntent", {
+    "slots": {
 
+    },
+    "utterances": ["check mail"]
+
+  },
+  function(request, response) {
+
+      var session = request.getSession();
+      console.log('session: '+JSON.stringify(session));
+      var accessToken = session.details.accessToken;
+      if(accessToken){
+          // console.log('accessToken: ' + accessToken);
+          var client = MicrosoftGraph.Client.init({
+                authProvider: (done) => {
+                    done(null, accessToken);
+                }
+          });
+          //
+          var url = '/me/mailFolders/test/messages';
+          //
+          client
+            .api(url)
+            .get(
+                {message: mail},
+                (err, res) => {
+                    if (err){
+                        console.log(err);
+                      }else{
+                        console.log('request content' + JSON.stringify(request) );
+                        console.log('res content' + JSON.stringify(res) );
+                        console.log('response content' + JSON.stringify(response) );
+                      }
+                })
+
+      response.say("send an mail title: "+ templateSubject +' now').reprompt("please say again").shouldEndSession(false);
+
+      }else{
+          console.log('no token');
+      }
+      return false;
+    }
+  }
 );
 
 alexaApp.intent("errorIntent", function(request, response) {

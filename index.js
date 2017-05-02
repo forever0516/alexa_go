@@ -223,6 +223,51 @@ app.intent("mailContentIntent", {
 
 );
 
+// check mail
+app.intent("checkMailIntent", {
+    "slots": {
+
+    },
+    "utterances": ["check mail"]
+
+  },
+  function(request, response) {
+
+      var session = request.getSession();
+      console.log('session: '+JSON.stringify(session));
+      var accessToken = session.details.accessToken;
+      if(accessToken){
+          // console.log('accessToken: ' + accessToken);
+          var client = MicrosoftGraph.Client.init({
+                authProvider: (done) => {
+                    done(null, accessToken);
+                }
+          });
+          //
+          var url = '/me/mailFolders/';
+          //
+                  client
+                  .api(url)
+                  .header("Prefer", 'outlook.timezone="Asia/Taipei"')
+                  .top(20)
+                  .get((err, res) => {
+                      if (err) {
+                          console.log(err)
+                          return;
+                      }else{
+                          console.log(url);
+                          console.log("check mail" + JSON.stringify(res));
+                      }
+                  })
+
+      response.say("send an mail title: "+ templateSubject +' now').reprompt("please say again").shouldEndSession(false);
+
+      }else{
+          console.log('no token');
+      }
+      return false;
+    }
+);
 
 app.intent("errorIntent", function(request, response) {
   response.say("error please say new intent").shouldEndSession(false);
