@@ -9,118 +9,166 @@ var MicrosoftGraph = require("msgraph-sdk-javascript");
 
 app.dictionary = {
   "songs": ["Good Life", "Closer", "Shape of You", "Faded", "Stay", "Yellow"],
-  "topics": ["Business", "Meeting", "Tour"]
+  "titles": ["Business", "Meeting", "Tour"],
+  "contents":[]
 };
 
-app.launch(function(request, response) {
-  response.say("welcome to gina mail").reprompt("welcome to gina mail").shouldEndSession(false);
-});
+var templateSubject='';
 
-app.intent("weather", {
-    "slots": {
-      "countries": "AMAZON.Country"
-    },
-    "utterances": ["{what is|how is} the weather in {-|countries}"]
-  },
- function(request, response) {
-    console.log('request content' + JSON.stringify(request) );
-    response.say("It's sunny");
-  }
-);
+app.launch(function(request, response) {
+  response.say("welcome to gina .. what can I do for you").reprompt("welcome to gina mail").shouldEndSession(false);
+  templateSubject = '';
+});
 
 // app.request(template.weather)
 //   .then(function(response) {
-//     console.log(JSON.stringify(response, null, 3));
-//     response.say("async It's hot");
+//     response.say("it is hot");
 //   });
 
-app.intent("calendar", {
-    "utterances": ["check calendar", "check my calendar"]
-  },
-  function(request, response) {
+// app.intent("calendar", {
+//     "utterances": ["check calendar", "check my calendar"]
+//   },
+//   function(request, response) {
+//
+//     var session = request.getSession();
+//     console.log('session: '+JSON.stringify(session));
+//     var accessToken = session.details.accessToken;
+//
+//     if(accessToken){
+//         // console.log('accessToken: ' + accessToken);
+//         var client = MicrosoftGraph.Client.init({
+//               authProvider: (done) => {
+//                   done(null, accessToken);
+//               }
+//         });
+//
+//         //
+//         var Moment = require('moment-timezone');
+//         var today = Moment().tz('Asian/Taipei').startOf('hour').add(8, 'hours').format('YYYY-MM-DD');
+//         var startDate = today+'T'+'00:00:00.0000000';
+//         var endDate = today+'T'+'23:59:59.0000000';
+//
+//         console.log('type '+ typeof(startDate));
+//         var url = '/me/calendar/calendarView?startDateTime='+ startDate.toString() + '&'+'endDateTime='+endDate.toString();
+//         //
+//
+//         client
+//         .api(url.toString())
+//         .header("Prefer", 'outlook.timezone="Asia/Taipei"')
+//         .top(3)
+//         .get((err, res) => {
+//             if (err) {
+//                 console.log(err)
+//                 return;
+//             }else{
+//                 console.log(url);
+//                 var upcomingEventNames = []
+//
+//
+//                 for (var i=0; i<res.value.length; i++) {
+//                     upcomingEventNames.push(JSON.stringify( res.value[i]));
+//                 }
+//
+//                 var replyMessage = 'you have '+upcomingEventNames.length+' meeting today. . ';
+//
+//                 for(var i=1; i<=upcomingEventNames.length; i++){
+//                     replyMessage += i+'. ' + res.value[i-1].subject + ' at ' + res.value[i-1].start.dateTime.substring(res.value[i-1].start.dateTime.lastIndexOf("T")+1,res.value[i-1].start.dateTime.lastIndexOf("."))+'. . ';
+//                 }
+//                 if(upcomingEventNames.length>=3){
+//                     replyMessage += 'for more, please check your alexa app';
+//                 }
+//
+//                 console.log('replyMessage:' + JSON.stringify(replyMessage));
+//                 response.say(replyMessage);
+//
+//             }
+//         })
+//
+//     }else{
+//         console.log('no token');
+//     }
+//   }
+// );
 
-    var session = request.getSession();
-    console.log('session: '+JSON.stringify(session));
-    var accessToken = session.details.accessToken;
+// app.intent("playMusic", {
+//     "slots": {
+//
+//     },
+//     "utterances": ["play music"]
+//   },
+//   function(request, response) {
+//       // var reprompt = 'playing music.';
+//
+//       console.log(JSON.stringify(request));
+//       response.say("ok, which songs do you want to play").shouldEndSession(false);
+//       // return false;
+//   }
+// );
 
-    if(accessToken){
-        // console.log('accessToken: ' + accessToken);
-        var client = MicrosoftGraph.Client.init({
-              authProvider: (done) => {
-                  done(null, accessToken);
-              }
-        });
+// app.intent("MusicName", {
+//     "slots": {
+//       "SONGS": "AMAZON.MusicPlaylist"
+//     },
+//     "utterances": ["music {songs|SONGS} "]
+//   },
+//   function(request, response) {
+//       console.log(JSON.stringify(request));
+//       response.say("ok, playing "+ request.slot("SONGS")+' now');
+//       return false;
+//   }
+// );
 
-        //
-        var Moment = require('moment-timezone');
-        var today = Moment().tz('Asian/Taipei').startOf('hour').add(8, 'hours').format('YYYY-MM-DD');
-        var startDate = today+'T'+'00:00:00.0000000';
-        var endDate = today+'T'+'23:59:59.0000000';
-
-        console.log('type '+ typeof(startDate));
-        var url = '/me/calendar/calendarView?startDateTime='+ startDate.toString() + '&'+'endDateTime='+endDate.toString();
-        //
-
-        client
-        .api(url.toString())
-        .header("Prefer", 'outlook.timezone="Asia/Taipei"')
-        .top(3)
-        .get((err, res) => {
-            if (err) {
-                console.log(err)
-                return;
-            }else{
-                console.log(url);
-                var upcomingEventNames = []
-
-
-                for (var i=0; i<res.value.length; i++) {
-                    upcomingEventNames.push(JSON.stringify( res.value[i]));
-                }
-
-                var replyMessage = 'you have '+upcomingEventNames.length+' meeting today. . ';
-
-                for(var i=1; i<=upcomingEventNames.length; i++){
-                    replyMessage += i+'. ' + res.value[i-1].subject + ' at ' + res.value[i-1].start.dateTime.substring(res.value[i-1].start.dateTime.lastIndexOf("T")+1,res.value[i-1].start.dateTime.lastIndexOf("."))+'. . ';
-                }
-                if(upcomingEventNames.length>=3){
-                    replyMessage += 'for more, please check your alexa app';
-                }
-
-                console.log('replyMessage:' + JSON.stringify(replyMessage));
-                response.say(replyMessage);
-
-            }
-        })
-
-    }else{
-        console.log('no token');
-    }
-  }
-);
-
-app.intent("playMusic", {
+//mail serverice
+app.intent("mailIntent", {
     "slots": {
-      "SONGS": "AMAZON.MusicPlaylist"
+
     },
-    "utterances": ["play music {songs|SONGS} "]
+    "utterances": ["mail serverice"]
   },
   function(request, response) {
-      var reprompt = 'playing music.';
-
-      response.say(reprompt).send();
-
       console.log(JSON.stringify(request));
-      response.say("ok, playing "+request.slot("SONGS")+' now');
-      return false;
+      response.say("ok, mail service .. which feature do you want .. send mail .. check mail").reprompt("please say again").shouldEndSession(false);
+      // return false;
   }
 );
 
-app.intent("mail", {
+//send mail & ask subject
+app.intent("sendMailIntent", {
     "slots": {
-      "TOPIC": "MailTopic"
+
     },
-    "utterances": ["send mail {topics|TOPIC}"]
+    "utterances": ["send mail"]
+  },
+  function(request, response) {
+      console.log(JSON.stringify(request));
+      response.say("ok, send mail .. what is your title").reprompt("please say again").shouldEndSession(false);
+      // return false;
+  }
+);
+
+// send mail get subject and ask content
+app.intent("mailSubjectIntent", {
+    "slots": {
+      "SUBJECT": "MailSubject"
+    },
+    "utterances": ["mail title {titles|SUBJECT} ", "title is {titles|SUBJECT}", "title name {titles|SUBJECT}"]
+
+  },
+  function(request, response) {
+      console.log(JSON.stringify(request));
+      response.say("ok, your mail title is " + request.slot("SUBJECT") + "..");
+      response.say("and what is your content ..").reprompt("please say again").shouldEndSession(false);
+      templateSubject = request.slot("SUBJECT");
+      // return false;
+  }
+);
+
+//mail get content and send
+app.intent("mailContentIntent", {
+    "slots": {
+      "CONTENT": "MailContent"
+    },
+    "utterances": ["mail message {contents|CONTENT}" , "content {contents|CONTENT}", "message text {contents|CONTENT}"]
   },
   function(request, response) {
 
@@ -136,17 +184,17 @@ app.intent("mail", {
         });
         //
         var url = '/me/sendMail';
-        var replyMessage = 'Sent an email';
+        var replyMessage = 'Send an email';
         //
         var mail = {
-            subject: request.slot("TOPIC"),
+            subject: templateSubject,
             toRecipients: [{
                 emailAddress: {
                     address: "Kai_Yang@wistron.com"
                 }
             }],
             body: {
-                content: "<h1>MicrosoftGraph TypeScript Connect Sample</h1><br>this is a test mail",
+                content: request.slot("CONTENT"),
                 contentType: "html"
             }
         }
@@ -164,18 +212,20 @@ app.intent("mail", {
                     }
               })
 
-    response.say("send an mail Topic: "+ request.slot("TOPIC")+' now');
+    response.say("send an mail title: "+ templateSubject +' now').reprompt("please say again").shouldEndSession(false);
 
     }else{
         console.log('no token');
     }
     return false;
   }
+
+
 );
 
 
 app.intent("errorIntent", function(request, response) {
-  response.say(someVariableThatDoesntExist);
+  response.say("error please say new intent").shouldEndSession(false);
 });
 
 // connect to lambda
